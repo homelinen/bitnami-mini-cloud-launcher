@@ -2,9 +2,14 @@
 
 %p Launch a Wordpress instance
 
-%form{ action: '/submit', method: 'POST'}
-  %input{ name: 'aws_access_key', placeholder: 'AKIA___________', type: 'text', required: '' }
+%form{ action: '/submit', method: 'POST', role: 'form', id: 'cred-form' }
 
-  %input{ name: 'aws_secret_key', placeholder: '********', type: 'password', required: '' }
+  .form-group
+    %label AWS Access Key
+    %input{ name: 'aws_access_key', class: 'form-control', placeholder: 'AKIA___________', type: 'text', required: '' }
 
-  %input{ type: 'submit' }
+  .form-group
+    %label AWS Secret Key
+    %input{ name: 'aws_secret_key', class: 'form-control', placeholder: '********', type: 'password', required: '' }
+
+  %input{ class: ['form-control', 'btn', 'btn-success' ], type: 'submit' }

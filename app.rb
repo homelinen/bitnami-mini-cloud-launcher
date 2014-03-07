@@ -48,6 +48,9 @@ class SinatraBootstrap < Sinatra::Base
         # TODO: Get key from entry
         ec2 = setup_ec2(access_key, secret_key)
 
+        session['access_key'] = access_key
+        session['secret_key'] = secret_key
+
         redirect to ('/') unless ec2
 
         instance = ec2.instances.create(
@@ -65,28 +68,50 @@ class SinatraBootstrap < Sinatra::Base
     end
 
     get '/summary' do
+        if not session[:access_key]
+            redirect to ('/')
+        end
+
         ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
 
         instance = ec2.instances[session[:instance]]
 
-        # TODO Flash
-        if not instance
-            redirect to ('/')
-        end
-
         instance_url = instance.dns_name
 
-        haml :summary, locals: { instance_id: instance.id, instance_url: instance_url }
+        haml :summary, locals: { instance_id: instance.id, instance_url: instance_url, instance_status: instance.status }
     end
 
     get '/stop' do
+        if not session[:access_key]
+            redirect to ('/')
+        end
+
         ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
 
         instance_id = session[:instance]
 
         ec2.instances[instance_id].stop
 
-        redirect to ('/')
+        redirect to ('/summary')
+    end
+
+    get '/start' do
+        if not session[:access_key]
+            redirect to ('/')
+        end
+
+        ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
+
+        instance_id = session[:instance]
+
+        ec2.instances[instance_id].start
+
+        redirect to ('/summary')
+    end
+
+    get '/stylesheets/application.css' do
+
+        sass :application, :content_type => 'text/css; charset=utf-8'
     end
 
     # start the server if ruby file executed directly
