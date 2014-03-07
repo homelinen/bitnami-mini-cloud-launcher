@@ -11,4 +11,6 @@ group :development do
 
     # Auto refresh the server as required
     gem "shotgun", "~> 0.9"
+
+    gem "dotenv", "~> 0.10.0"
 end
