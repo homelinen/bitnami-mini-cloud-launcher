@@ -9,8 +9,10 @@ class SinatraBootstrap < Sinatra::Base
     set :template, :layout
     set :dotenv, Dotenv.load
 
-    set :session_secret, dotenv['session_secret']
-    enable :sessions
+    use Rack::Session::Cookie, 
+                           :path => '/',
+                           :expire_after => 2592000, # In seconds
+                           :secret => dotenv['SESSION_SECRET']
 
     # TODO: Generate a list of available AMIs
     set :ami, 'ami-54cd3b23' 
@@ -25,6 +27,13 @@ class SinatraBootstrap < Sinatra::Base
             secret_access_key: secret_key, 
             ec2_endpoint: 'ec2.us-west-1.amazonaws.com')
 
+        # Test for Auth Failures
+        begin
+            ec2.instances.first
+        rescue AWS::EC2::Errors::AuthFailure
+            ec2 = nil
+        end
+
         return ec2
     end
 
@@ -37,7 +46,9 @@ class SinatraBootstrap < Sinatra::Base
         secret_key = params['aws_secret_key'].strip
 
         # TODO: Get key from entry
-        setup_ec2(access_key, secret_key)
+        ec2 = setup_ec2(access_key, secret_key)
+
+        redirect to ('/') unless ec2
 
         instance = ec2.instances.create(
             image_id: 'ami-e4625fa1',
