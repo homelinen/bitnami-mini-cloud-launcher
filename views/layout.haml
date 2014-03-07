@@ -13,3 +13,7 @@
         %h1
           %a{ href: url('/') } Cloud Launcher
       = yield
+
+      #footer
+        - if session[:access_key]
+          %a{ href: url('/signout') } Sign out

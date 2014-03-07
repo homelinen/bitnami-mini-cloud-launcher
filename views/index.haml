@@ -1,15 +1,31 @@
 %h1 Wordpress Launcher
 
-%p Launch a Wordpress instance
+.jumbotron
+  :markdown 
+    Welcome to the Wordpress Cloud Launcher.
 
-%form{ action: '/submit', method: 'POST', role: 'form', id: 'cred-form' }
+    Simply enter your AWS Credentials below to start by creating a Wordpress instance 
+    and getting in to manage.
 
-  .form-group
-    %label AWS Access Key
-    %input{ name: 'aws_access_key', class: 'form-control', placeholder: 'AKIA___________', type: 'text', required: '' }
+    **NOTE**: If you sign in again with your credentials, a new instance will be created.
 
-  .form-group
-    %label AWS Secret Key
-    %input{ name: 'aws_secret_key', class: 'form-control', placeholder: '********', type: 'password', required: '' }
+- unless session[:access_key]
 
-  %input{ class: ['form-control', 'btn', 'btn-success' ], type: 'submit' }
+  .well
+    %form{ action: '/submit', method: 'POST', role: 'form', id: 'cred-form' }
+
+      .form-group
+        %label AWS Access Key
+        %input{ name: 'aws_access_key', class: 'form-control', placeholder: 'AKIA___________', type: 'text', required: '' }
+
+      .form-group
+        %label AWS Secret Key
+        %input{ name: 'aws_secret_key', class: 'form-control', placeholder: '********', type: 'password', required: '' }
+
+      %input{ class: ['form-control', 'btn', 'btn-success' ], type: 'submit' }
+
+- else
+  You've already signed in, feel free to view the 
+  %a{ href: url('/summary') } summary
+  page.
+

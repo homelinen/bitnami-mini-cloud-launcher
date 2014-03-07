@@ -1,0 +1,36 @@
+%h2 Summary
+
+-# Check credentials are given
+
+%table.table
+  %thead
+    %tr
+      %th ID
+      %th Status
+      %th DNS Name
+      %th Action
+  %hr
+  %tbody
+    - if instance_status == :running
+      - colour_class = 'success'
+    - else
+      - colour_class = 'warning'
+      
+    %tr
+      %td=instance_id
+      %td
+        %span{ class: [ :label, "label-#{colour_class}"] }= instance_status.capitalize
+      %td
+        - if instance_url
+          %a{href: instance_url, title: 'Instance URL'}= instance_url
+
+        - elsif instance_status != :running and instance_status != :pending
+          Instance is stopped
+        - else
+          Provisioning... Please Refresh in a Moment
+      %td
+        
+        - if instance_status == :running
+          %a{ href: url('/stop'), class:[ 'btn', 'btn-primary'], title: 'Stop' } Stop
+        - else 
+          %a{ href: url('/start'), class:[ 'btn', 'btn-primary'], title: 'Start' } Start
