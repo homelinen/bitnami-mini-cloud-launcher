@@ -16,4 +16,4 @@
 
       #footer
         - if session[:access_key]
-          %a{ href: url('/signout') } Sign out
+          %a{ href: url('/signout'), class: [ :btn, 'btn-warning' ] } Sign out

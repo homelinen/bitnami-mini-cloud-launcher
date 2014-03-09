@@ -1,15 +1,12 @@
 %h1 Wordpress Launcher
 
-.jumbotron
-  :markdown 
-    Welcome to the Wordpress Cloud Launcher.
-
-    Simply enter your AWS Credentials below to start by creating a Wordpress instance 
-    and getting in to manage.
-
-    **NOTE**: If you sign in again with your credentials, a new instance will be created.
-
 - unless session[:access_key]
+  .jumbotron
+    :markdown 
+      Welcome to the Wordpress Cloud Launcher.
+
+      Simply enter your AWS Credentials below to start by creating a Wordpress instance 
+      and getting in to manage.
 
   .well
     %form{ action: '/submit', method: 'POST', role: 'form', id: 'cred-form' }
@@ -25,7 +22,9 @@
       %input{ class: ['form-control', 'btn', 'btn-success' ], type: 'submit' }
 
 - else
-  You've already signed in, feel free to view the 
-  %a{ href: url('/summary') } summary
-  page.
+  .jumbotron
+    %p
+      You've already signed in, feel free to view the 
+      %a{ href: url('/summary') } summary
+      page.
 
