@@ -11,14 +11,14 @@ This is my solution for a mini-cloud launcher for Bitnami Wordpress AMIs.
 ## Installation
 
 * Run `bundle install --without development`
-* Create a `.env` file to configure your session secret, containing the follwing:
+* Create a `.env` file to configure your session secret, containing the following:
 
       SESSION_SECRET=someRandomData
 * Run `bundle exec ruby app.rb`
 * Visit `localhost:4567` and enter your credentials
 
 ## IAM Policy
-The launcher takes your AWS credentials as login, a fairly minimal IAM policy that can be used is below, this could be minimised further:
+The launcher takes your AWS credentials as login, a fairly minimal IAM policy that can be used is below, this could possibly be minimised further:
 
     {
       "Version": "2012-10-17",
