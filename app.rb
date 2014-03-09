@@ -46,19 +46,26 @@ class SinatraBootstrap < Sinatra::Base
         session['access_key'] = access_key
         session['secret_key'] = secret_key
 
+        redirect to ('/summary')
+    end
+
+    get '/new' do
+        if not session[:access_key]
+            redirect to ('/')
+        end
+
+        ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
+
         # Generate a single instance
         # TODO: Allow a dropdown for size and AMI
+
         instance = ec2.instances.create(
             image_id: 'ami-e4625fa1',
             count: 1,
             instance_type: 't1.micro'
         )
 
-        # Setup some helper session variables (Reduces API calls)
-        session[:instance] = instance.id
-        session[:instance_url] = 'http://' + instance.dns_name
-
-        redirect to ('/summary')
+        redirect to('/summary')
     end
 
     # Display the summary of instances
@@ -71,42 +78,35 @@ class SinatraBootstrap < Sinatra::Base
 
         ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
 
-        begin
-            instance = ec2.instances[session[:instance]]
+        instances = ec2.instances.tagged('cloud-launcher')
 
-            instance_url = instance.dns_name
-        rescue AWS::EC2::Errors::InvalidInstanceID::NotFound
-           # If the instance cannot be found, signout
-           instance=nil 
-           redirect to('/signout')
-        end
-
-        haml :summary, locals: { instance_id: instance.id, instance_url: instance_url, instance_status: instance.status }
+        haml :summary, locals: { instances: instances }
     end
 
     # TODO Combine most of stop and start together, reduce duplication
-    get '/stop' do
-        if not session[:access_key]
-            redirect to ('/')
-        end
+    post '/stop' do
+        redirect to ('/') unless session[:access_key]
 
         ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
 
-        instance_id = session[:instance]
+        instance_id = params[:instance_id]
+        redirect to ('/') unless ec2.instances[instance_id]
 
         ec2.instances[instance_id].stop
 
         redirect to ('/summary')
     end
 
-    get '/start' do
-        if not session[:access_key]
-            redirect to ('/')
-        end
+    post '/start' do
+        redirect to ('/') unless session[:access_key]
 
         ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
 
-        instance_id = session[:instance]
+        instance_id = params[:instance_id]
+      
+        # Need a more rigorous check the instance ID is valid
+        redirect to ('/') unless ec2.instances[instance_id]
+
 
         ec2.instances[instance_id].start
 

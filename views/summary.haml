@@ -11,26 +11,52 @@
       %th Action
   %hr
   %tbody
-    - if instance_status == :running
-      - colour_class = 'success'
-    - else
-      - colour_class = 'warning'
-      
-    %tr
-      %td=instance_id
-      %td
-        %span{ class: [ :label, "label-#{colour_class}"] }= instance_status.capitalize
-      %td
-        - if instance_url
-          %a{href: instance_url, title: 'Instance URL'}= instance_url
+    - count = 0
+    - instances.each do |instance|
 
-        - elsif instance_status != :running and instance_status != :pending
-          Instance is stopped
-        - else
-          Provisioning... Please Refresh in a Moment
-      %td
+      - instance_status = instance.status
+      - instance_dns = instance.dns_name
+
+      - instance_dns = 'http://' + instance_dns if instance_dns
+
+      - if instance.status == :running
+        - colour_class = 'success'
+      - else
+        - colour_class = 'warning'
         
-        - if instance_status == :running
-          %a{ href: url('/stop'), class:[ 'btn', 'btn-primary'], title: 'Stop' } Stop
-        - else 
-          %a{ href: url('/start'), class:[ 'btn', 'btn-primary'], title: 'Start' } Start
+      %tr
+        %td=instance.id
+        %td
+          %span{ class: [ :label, "label-#{colour_class}"] }= instance_status.capitalize
+        %td
+          - if instance_dns
+            %a{href: instance_dns, title: 'Instance URL'}= instance_dns
+
+          - elsif instance_status != :running and instance_status != :pending
+            Instance is stopped
+          - else
+            Provisioning... Please Refresh in a Moment
+        %td
+          
+          -# TODO: Render from partials, duplicate code
+          - if instance_status == :running
+            %form{ action: '/stop', method: 'post' }
+              %input{ type: 'hidden', name: 'instance_id', value: instance.id }
+              %input{ class:[ 'btn', 'btn-primary'], title: 'Stop', name: 'stop', value: 'Stop', type: 'submit' }
+          - else 
+            %form{ action: '/stop', method: 'post' }
+              %input{ type: 'hidden', name: 'instance_id', value: instance.id }
+              %input{ class:[ 'btn', 'btn-primary'], title: 'start', name: 'start', value: 'Start', type: 'submit' }
+
+      -# Increment the counter if an instance was found
+      - count += 1
+    - if count < 1
+      %tr
+        %td
+        %td
+          No Instances were found
+        %td
+
+-# Create a new Instance Button
+
+%a{ class: [ :btn, 'btn-primary' ], :href => url('/new') } Launch New
