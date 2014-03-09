@@ -53,9 +53,7 @@ class SinatraBootstrap < Sinatra::Base
     end
 
     get '/new' do
-        if not session[:access_key]
-            redirect to ('/')
-        end
+        redirect to ('/') unless session[:access_key]
 
         ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
 
@@ -87,9 +85,7 @@ class SinatraBootstrap < Sinatra::Base
     # 
     # TODO: Grab instances from a database or the account itself
     get '/summary' do
-        if not session[:access_key]
-            redirect to ('/')
-        end
+        redirect to ('/') unless session[:access_key]
 
         ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
 
@@ -98,8 +94,7 @@ class SinatraBootstrap < Sinatra::Base
         haml :summary, locals: { instances: instances }
     end
 
-    # TODO Combine most of stop and start together, reduce duplication
-    post '/stop' do
+    post %r{start|stop} do |action|
         redirect to ('/') unless session[:access_key]
 
         ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
@@ -107,23 +102,11 @@ class SinatraBootstrap < Sinatra::Base
         instance_id = params[:instance_id]
         redirect to ('/') unless ec2.instances[instance_id]
 
-        ec2.instances[instance_id].stop
-
-        redirect to ('/summary')
-    end
-
-    post '/start' do
-        redirect to ('/') unless session[:access_key]
-
-        ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
-
-        instance_id = params[:instance_id]
-      
-        # Need a more rigorous check the instance ID is valid
-        redirect to ('/') unless ec2.instances[instance_id]
-
-
-        ec2.instances[instance_id].start
+        if action == "stop"
+          ec2.instances[instance_id].stop
+        elsif action == "start"
+          ec2.instances[instance_id].start
+        end
 
         redirect to ('/summary')
     end
@@ -135,7 +118,6 @@ class SinatraBootstrap < Sinatra::Base
     end
 
     get '/stylesheets/application.css' do
-
         sass :application, :content_type => 'text/css; charset=utf-8'
     end
 
