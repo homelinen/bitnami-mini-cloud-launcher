@@ -1,7 +1,10 @@
 require 'sinatra/base'
-require 'haml'
 require 'aws-sdk'
 require 'dotenv'
+
+require 'haml'
+require 'redcarpet'
+require 'sass'
 
 class SinatraBootstrap < Sinatra::Base
     set :template, :layout
