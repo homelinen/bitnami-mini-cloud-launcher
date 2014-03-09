@@ -56,14 +56,26 @@ class SinatraBootstrap < Sinatra::Base
 
         ec2 = setup_ec2(session[:access_key], session[:secret_key]) 
 
+        sg = nil
+
+        # Create a security group if needed
+        ec2.security_groups.filter('group-name', 'cloud-launcher-wordpress').each { |security_group| sg=security_group; break }
+        
+        unless sg 
+          sg = ec2.security_groups.create('cloud-launcher-wordpress')
+          sg.authorize_ingress(:tcp, 80)
+        end
+
         # Generate a single instance
         # TODO: Allow a dropdown for size and AMI
-
         instance = ec2.instances.create(
             image_id: 'ami-e4625fa1',
             count: 1,
-            instance_type: 't1.micro'
+            instance_type: 't1.micro',
+            security_groups: sg.name
         )
+
+        instance.tag('cloud-launcher')
 
         redirect to('/summary')
     end
